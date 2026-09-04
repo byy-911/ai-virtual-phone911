@@ -595,10 +595,11 @@ export const BilingualTextBlock = memo(function BilingualTextBlock({
     htmlFrameVariant?: ChatHtmlFrameVariant;
 }) {
     const bilingual = splitBilingualText(text);
-    const [expanded, setExpanded] = useState(defaultExpanded);
+    // 修改：如果含有翻译内容（bilingual 不为空），则默认直接展开翻译，不需要手动点击
+    const [expanded, setExpanded] = useState(bilingual ? true : defaultExpanded);
     useEffect(() => {
-        setExpanded(defaultExpanded);
-    }, [text, defaultExpanded]);
+        setExpanded(bilingual ? true : defaultExpanded);
+    }, [text, defaultExpanded, bilingual]);
     const renderContent = (content: string, extraClass?: string) => {
         if (mode === "plain") return <PlainTextContent content={content} className={extraClass} />;
         return (

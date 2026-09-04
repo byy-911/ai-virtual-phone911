@@ -874,6 +874,33 @@ export function assemblePromptPayload(input: AssemblerInput): LLMMessage[] {
     }
 
     // --- CHAT HISTORY / SHORT-TERM MEMORY ---
+    // 注入：在此处动态改写主动消息/追发重连的提示词，让外语角色在主动开口时能够使用符合其人设的母语！
+    if (preset && character) {
+        const charLang = (character.language || character.personality || character.persona || "").toLowerCase();
+        const isEnglish = charLang.includes("english") || charLang.includes("英语") || charLang.includes("英文");
+        const isJapanese = charLang.includes("japanese") || charLang.includes("日语") || charLang.includes("日文");
+        const isKorean = charLang.includes("korean") || charLang.includes("韩语") || charLang.includes("韩文");
+        
+        let languageInstruction = "";
+        if (isEnglish) {
+            languageInstruction = "\n[IMPORTANT LANGUAGE INSTRUCTION: As an English-speaking character, you must reply, chat, and initiate this proactive message EXCLUSIVELY in English. DO NOT speak Chinese here.]";
+        } else if (isJapanese) {
+            languageInstruction = "\n[重要言語指示: 日本語話者のキャラクターとして、この自発的なメッセージ送信を含め、すべての会話において必ず日本語のみで返答してください。中国語は絶対に使用しないでください。]";
+        } else if (isKorean) {
+            languageInstruction = "\n[중요 언어 지침: 한국어 구사 캐릭터로서 이 자발적인 메시지 발송을 포함한 모든 대화에서 반드시 한국어로만 답변해 주십시오. 중국어는 절대 사용하지 마십시오.]";
+        }
+
+        if (languageInstruction) {
+            preset.prompts.forEach(p => {
+                if (p.identifier === "chat_followup" || p.identifier === "chat_timed_wake" || p.identifier === "chat_user_timed_wake" || p.identifier === "chat_idle_reconnect") {
+                    if (!p.content.includes("LANGUAGE INSTRUCTION")) {
+                        p.content += languageInstruction;
+                    }
+                }
+            });
+        }
+    }
+
     // shortTermMemory/chatHistory 标记条目被关闭时，跳过聊天历史与短期记忆注入
     // （标记的分界作用不受开关影响，见 prompt_order 循环）
     const historyMarkerPrompt = preset
