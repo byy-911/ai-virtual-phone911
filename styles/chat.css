@@ -2,6 +2,20 @@
    Chat Page Classes (.chat-*)
    ══════════════════════════════════════════ */
 
+/* ==========================================================
+   智能不在场契约样式：将标记转换为精美的微信提示UI
+   ========================================================== */
+.chat-markdown p:has(style),
+.chat-markdown div:has(style) {
+  overflow: visible !important;
+}
+
+/* 后台正则引擎在展示层对 [我出门啦] 标签进行自适应微信美化 */
+.chat-markdown p:contains("[我出门啦"),
+.chat-markdown div:contains("[我出门啦") {
+  display: none !important; /* 隐藏原生脏文本，由正则替换后的元素渲染 */
+}
+
 .chat-app {
   background: transparent;
   --ctx-menu-bg: #2c2c2c;

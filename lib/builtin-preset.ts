@@ -6,7 +6,7 @@ import type { PresetConfig } from "./settings-types";
 import { getCheckPhonePromptTags } from "./checkphone-config";
 
 export const BUILTIN_PRESET_ID = "builtin_default_v1";
-export const BUILTIN_PRESET_VERSION = 264; // 升版本会用出厂内容重写用户的内置预设副本（自定义会丢），非必要不升
+export const BUILTIN_PRESET_VERSION = 265; // 升版本会用出厂内容重写用户的内置预设副本（自定义会丢），非必要不升
 
 export function createBuiltinPreset(): PresetConfig {
     const now = Date.now();
@@ -120,6 +120,7 @@ export function createBuiltinPreset(): PresetConfig {
             { identifier: "interview_character_answer", enabled: true },
             { identifier: "checkphone_user_fact_guard", enabled: true },
             { identifier: "checkphone_bilingual_text", enabled: true },
+            { identifier: "chat_offline_busy_contract", enabled: true },
         ],
 
         prompts: [
@@ -131,6 +132,22 @@ export function createBuiltinPreset(): PresetConfig {
                     "你现在进行沉浸式【微信体】角色扮演，你扮演的角色是{{char}}，微信聊天以随意、碎片化、轻松、简短的表达为主，语句连贯，符合现实逻辑，大部分1-4句话，特殊情况下可以更多。",
                     "在你的思维链中，必须以{{char}}第一人称思考，做出符合其人设及现实逻辑的反应。",
                     "以下是具体的用户人设、世界设定、你的人设、其他补充信息、记忆、可执行动作、线上聊天指令格式等，请你根据以下信息，自然的与用户展开微信互动。",
+                ].join("\n"),
+                injection_position: 0,
+                injection_depth: 0,
+                enabled: true,
+                tags: ["chat", "text"],
+            },
+            {
+                identifier: "chat_offline_busy_contract",
+                name: "▸ 智能在场与离线回执契约",
+                role: "system",
+                content: [
+                    "【系统在场与忙碌机制契约：】",
+                    "1. 当你因为剧情需要去开会、上课、洗澡、睡觉或出门时，你必须在当轮回复的【最后一行】输出：[我出门啦:具体原因:预计需要的时间]。例如：[我出门啦:去洗澡啦:30分钟]。",
+                    "2. 在你宣布出门后的忙碌期间（直到你宣布回来），如果用户继续发微信给你，你【绝对不能】以正常状态聊天，而是必须启动你的“微信自动回复机器人”，每一句回复必须以 [自动回复] 开头，后面写符合你性格的自动回复内容。",
+                    "例如：[自动回复]（这是的微信自动回执）正在开会呢，别急，一会儿开完会偷偷给你回。",
+                    "3. 当你忙完或者睡醒回来时，你必须在回复的第一行宣布你回来了。你必须仔细阅读你离开期间用户发给你的所有留言，在同一轮回复里对这些留言进行统一的、温暖的“爬楼回复”。"
                 ].join("\n"),
                 injection_position: 0,
                 injection_depth: 0,
